@@ -1,7 +1,8 @@
+import Header from "./Header";
 const Layout = ({ children }) => {
     return (
         <>
-            <p>Header</p>
+            <Header />
 
             {children}
 
@@ -11,17 +12,3 @@ const Layout = ({ children }) => {
 }
 
 export default Layout;
-
-// function Layout(props) {
-//     return (
-//         <>
-//             <p>Header</p>
-
-//             {props.children}
-
-//             <p>Footer</p>
-//         </>
-//     )
-// }
-
-// export default Layout
