@@ -36,8 +36,8 @@ const Header = () => {
                 <NavbarToggler onClick={toggle} />
                 <Collapse isOpen={isOpen} navbar>
                     <Nav
-                        className="me-auto"
-                        navbar style={{ marginLeft: 'auto' }}
+                        className="ml-auto"
+                        navbar
                     >
                         <NavItem>
                             <Link href="/signin">

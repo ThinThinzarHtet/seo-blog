@@ -6,6 +6,7 @@ function MyApp({ Component, pageProps }) {
         <>
             <Head>
                 <meta name="viewport" content="viewport-fit=cover" />
+                <meta charSet="UTF-8" />
             </Head>
             <Component {...pageProps} />
         </>
