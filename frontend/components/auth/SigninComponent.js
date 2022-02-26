@@ -1,6 +1,6 @@
 import Router from 'next/router';
 import { useState } from 'react';
-import { signin } from '../../actions/auth';
+import { signin, authenticate } from '../../actions/auth';
 
 const SigninComponent = () => {
   const [values, setValues] = useState({
@@ -30,7 +30,9 @@ const SigninComponent = () => {
         // save user token to cookie
         // save user info to localstorage
         // authenticate user
-        Router.push('/');
+        authenticate(data, () => {
+          Router.push('/');
+        });
       }
     });
     // .then(data.error) {
@@ -78,7 +80,7 @@ const SigninComponent = () => {
           />
         </div>
         <div>
-          <button className='btn btn-primary text-center'>Signup</button>
+          <button className='btn btn-primary text-center'>Signin</button>
         </div>
       </form>
     );
