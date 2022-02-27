@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Router from 'next/router';
 import { isAuth, getCookie } from '../../actions/auth';
 import { create, getCategories, removeCategory } from '../../actions/category';
+import { remove } from '../../../backend/models/category';
 
 const Category = () => {
   const [values, setValues] = useState({
@@ -11,11 +12,73 @@ const Category = () => {
     success: false,
     categories: [],
     removed: false,
+    reload: false,
   });
 
-  const { name, error, success, categories, removed } = values;
+  const { name, error, success, categories, removed, reload } = values;
   const token = getCookie('token');
 
+  useEffect(() => {
+    loadCategories();
+  }, [reload]);
+
+  const loadCategories = () => {
+    getCategories().then((data) => {
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        setValues({
+          ...values,
+          categories: data,
+        });
+      }
+    });
+  };
+
+  const showCategories = () => {
+    return categories.map((c, i) => {
+      return (
+        <button
+          onDoubleClick={() => deleteConfirm(c.slug)}
+          title='Double click to delete'
+          key={i}
+          className='btn btn-outline-primary mr-1 ml-1 mt-3'
+        >
+          {c.name}
+        </button>
+      );
+    });
+  };
+
+  // delete confirmation and delte it
+  const deleteConfirm = (slug) => {
+    let answer = window.confirm(
+      'Are you sure you want to delete this category?'
+    );
+    if (answer) {
+      deleteCategory(slug);
+    }
+  };
+
+  const deleteCategory = (slug) => {
+    // console.log('delete', slug);
+    removeCategory(slug, token).then((data) => {
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        setValues({
+          ...values,
+          error: false,
+          success: false,
+          name: '',
+          removed: !removed,
+          reload: !reload,
+        });
+      }
+    });
+  };
+
+  // create category by clicking submit button
   const clickSubmit = (e) => {
     e.preventDefault();
     // console.log('create category', name);
@@ -23,7 +86,14 @@ const Category = () => {
       if (data.error) {
         setValues({ ...values, error: data.error, success: false });
       } else {
-        setValues({ ...values, error: false, success: true, name: '' });
+        setValues({
+          ...values,
+          error: false,
+          success: true,
+          name: '',
+          removed: '',
+          reload: !reload,
+        });
       }
     });
   };
@@ -38,6 +108,36 @@ const Category = () => {
     });
   };
 
+  // Show messages success or not
+  const showError = () => {
+    if (error) {
+      return <p className='text-danger'>Category already exists.</p>;
+    }
+  };
+
+  const showSuccess = () => {
+    if (success) {
+      return <p className='text-success'>Category is created.</p>;
+    }
+  };
+
+  const showRemoved = () => {
+    if (removed) {
+      return <p className='text-danger'>Category is removed.</p>;
+    }
+  };
+
+  // Mouse move handler
+  const mouseMoveHandler = (e) => {
+    setValues({
+      ...values,
+      error: false,
+      success: false,
+      removed: '',
+    });
+  };
+
+  // category form
   const newCategoryForm = () => (
     <form onSubmit={clickSubmit}>
       <div className='form-group'>
@@ -57,7 +157,17 @@ const Category = () => {
       </div>
     </form>
   );
-  return <>{newCategoryForm()}</>;
+  return (
+    <>
+      {showSuccess()}
+      {showError()}
+      {showRemoved()}
+      <div onMouseMove={mouseMoveHandler}>
+        {newCategoryForm()}
+        {showCategories()}
+      </div>
+    </>
+  );
 };
 
 export default Category;
