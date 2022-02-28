@@ -1,49 +1,47 @@
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Router from 'next/router';
 import { getCookie } from '../../actions/auth';
-import { create, getCategories, removeCategory } from '../../actions/category';
+import { create, getTags, removeTag } from '../../actions/tag';
 
-const Category = () => {
+const Tag = () => {
   const [values, setValues] = useState({
     name: '',
     error: false,
     success: false,
-    categories: [],
+    tags: [],
     removed: false,
     reload: false,
   });
 
-  const { name, error, success, categories, removed, reload } = values;
+  const { name, error, success, tags, removed, reload } = values;
   const token = getCookie('token');
 
   useEffect(() => {
-    loadCategories();
+    loadTags();
   }, [reload]);
 
-  const loadCategories = () => {
-    getCategories().then((data) => {
+  const loadTags = () => {
+    getTags().then((data) => {
       if (data.error) {
         console.log(data.error);
       } else {
         setValues({
           ...values,
-          categories: data,
+          tags: data,
         });
       }
     });
   };
 
-  const showCategories = () => {
-    return categories.map((c, i) => {
+  const showTags = () => {
+    return tags.map((t, i) => {
       return (
         <button
-          onDoubleClick={() => deleteConfirm(c.slug)}
+          onDoubleClick={() => deleteConfirm(t.slug)}
           title='Double click to delete'
           key={i}
           className='btn btn-outline-primary mr-1 ml-1 mt-3'
         >
-          {c.name}
+          {t.name}
         </button>
       );
     });
@@ -51,19 +49,17 @@ const Category = () => {
 
   // delete confirmation and delte it
   const deleteConfirm = (slug) => {
-    let answer = window.confirm(
-      'Are you sure you want to delete this category?'
-    );
+    let answer = window.confirm('Are you sure you want to delete this tag?');
     if (answer) {
-      deleteCategory(slug);
+      deleteTag(slug);
     }
   };
 
-  const deleteCategory = (slug) => {
+  const deleteTag = (slug) => {
     // console.log('delete', slug);
-    removeCategory(slug, token).then((data) => {
+    removeTag(slug, token).then((data) => {
       if (data.error) {
-        console.log(data.error);
+        console.log(data.error.message);
       } else {
         setValues({
           ...values,
@@ -77,10 +73,10 @@ const Category = () => {
     });
   };
 
-  // create category by clicking submit button
+  // create tag by clicking submit button
   const clickSubmit = (e) => {
     e.preventDefault();
-    // console.log('create category', name);
+    // console.log('create tag', name);
     create({ name }, token).then((data) => {
       if (data.error) {
         setValues({ ...values, error: data.error, success: false });
@@ -110,19 +106,19 @@ const Category = () => {
   // Show messages success or not
   const showError = () => {
     if (error) {
-      return <p className='text-danger'>Category already exists.</p>;
+      return <p className='text-danger'>Tag already exists.</p>;
     }
   };
 
   const showSuccess = () => {
     if (success) {
-      return <p className='text-success'>Category is created.</p>;
+      return <p className='text-success'>Tag is created.</p>;
     }
   };
 
   const showRemoved = () => {
     if (removed) {
-      return <p className='text-danger'>Category is removed.</p>;
+      return <p className='text-danger'>Tag is removed.</p>;
     }
   };
 
@@ -136,8 +132,8 @@ const Category = () => {
     });
   };
 
-  // category form
-  const newCategoryForm = () => (
+  // Tag form
+  const newTagForm = () => (
     <form onSubmit={clickSubmit}>
       <div className='form-group'>
         <label className='text-muted'>Name</label>
@@ -162,11 +158,11 @@ const Category = () => {
       {showError()}
       {showRemoved()}
       <div onMouseMove={mouseMoveHandler}>
-        {newCategoryForm()}
-        {showCategories()}
+        {newTagForm()}
+        {showTags()}
       </div>
     </>
   );
 };
 
-export default Category;
+export default Tag;
